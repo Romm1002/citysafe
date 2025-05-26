@@ -1,0 +1,57 @@
+// src/styles/global.scss
+
+:root {
+  --control-height: 80px;
+  --card-radius: 12px;
+  --shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  --gap: 16px;
+  --font: 'Inter', sans-serif;
+}
+
+html, body, #root {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: var(--font);
+}
+
+.app-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background-color: #f5f7fa;
+}
+
+/* Bandeau en haut pour recherche + filtres */
+.controls {
+  height: var(--control-height);
+  padding: 0 var(--gap);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #ffffff;
+  box-shadow: var(--shadow);
+  z-index: 10;
+
+  .logo{
+    height: inherit;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    img{
+        height: 65%;
+    }
+  }
+}
+
+/* Wrapper de la carte pour le style "card" */
+.map-wrapper {
+  flex: 1;
+  margin: var(--gap);
+  border-radius: var(--card-radius);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  position: relative;
+  background: #ffffff;
+}
