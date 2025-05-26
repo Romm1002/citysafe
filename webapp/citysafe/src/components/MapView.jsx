@@ -1,5 +1,3 @@
-// src/components/MapView.jsx
-
 import { useEffect, useRef } from 'react';
 import mapboxgl from 'mapbox-gl';
 import { MAPBOX_TOKEN } from '../config';
@@ -7,15 +5,13 @@ import '../styles/MapView.scss';
 
 mapboxgl.accessToken = MAPBOX_TOKEN;
 
-export default function MapView({ crimeData }) {
+export default function MapView({ crimeData, onNeighborhoodClick  }) {
   const mapContainer = useRef(null);
   const map = useRef(null);
 
   useEffect(() => {
     if (map.current) return;
-
     let hoveredStateId = null;
-
     const nyBounds = [
       [-74.25909, 40.477399],
       [-73.700272, 40.917577]
@@ -104,8 +100,13 @@ export default function MapView({ crimeData }) {
         }
         hoveredStateId = null;
       });
+
+      map.current.on('click', 'neighborhoods-fill', (e) => {
+        const props = e.features[0].properties;
+        if (onNeighborhoodClick) onNeighborhoodClick(props);
+      });
     });
-  }, [crimeData]);
+  }, [onNeighborhoodClick, crimeData]);
 
   return <div ref={mapContainer} className="map-container" />;
 }
