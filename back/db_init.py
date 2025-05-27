@@ -3,12 +3,13 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.dialects.mysql import DOUBLE, INTEGER, VARCHAR, TEXT, TIMESTAMP
 import os
 from dotenv import load_dotenv
+import json
+from config import Config
 
 load_dotenv()
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = f"mysql+mysqlconnector://{os.getenv('DB_USER')}:{os.getenv('DB_PASSWORD')}@{os.getenv('DB_HOST')}:{os.getenv('DB_PORT')}/{os.getenv('DB_NAME')}"
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config.from_object(Config)
 
 db = SQLAlchemy(app)
 
@@ -62,7 +63,29 @@ class Complaint(db.Model):
     neighborhood_id = db.Column(INTEGER(unsigned=True), db.ForeignKey('neighborhoods.id'))
     neighborhood = db.relationship('Neighborhood', backref=db.backref('complaints', lazy=True))
 
+def load_neighborhoods_from_geojson(file_path):
+    with open(file_path, 'r', encoding='utf-8') as f:
+        geojson_data = json.load(f)
+
+    nta_names = set()
+    for feature in geojson_data.get('features', []):
+        properties = feature.get('properties', {})
+        nta_name = properties.get('NTAName')
+        if nta_name:
+            nta_names.add(nta_name.strip())
+
+    for name in sorted(nta_names):
+        # Évite les doublons
+        exists = Neighborhood.query.filter_by(name=name).first()
+        if not exists:
+            db.session.add(Neighborhood(name=name))
+
+    db.session.commit()
+    print(f"{len(nta_names)} quartiers ajoutés à la base.")
+
+
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
+        load_neighborhoods_from_geojson("neighborhoods.geojson")
         print("Base de données et tables créées.")
