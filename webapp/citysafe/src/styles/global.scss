@@ -1,5 +1,3 @@
-// src/styles/global.scss
-
 :root {
   --control-height: 80px;
   --card-radius: 12px;
@@ -22,7 +20,6 @@ html, body, #root {
   background-color: #f5f7fa;
 }
 
-/* Bandeau en haut pour recherche + filtres */
 .controls {
   height: var(--control-height);
   padding: 0 var(--gap);
@@ -51,7 +48,6 @@ html, body, #root {
   }
 }
 
-/* Wrapper de la carte pour le style "card" */
 .map-wrapper {
   flex: 1;
   margin: var(--gap);
@@ -60,27 +56,4 @@ html, body, #root {
   box-shadow: var(--shadow);
   position: relative;
   background: #ffffff;
-}
-
-.neighborhood-popup {
-  position: absolute;
-  top: calc(var(--control-height) + 22px);
-  left: calc(var(--gap) + 8px);
-  background: #ffffff;
-  padding: var(--gap);
-  border-radius: var(--card-radius);
-  box-shadow: var(--shadow);
-  z-index: 20;
-  max-width: 300px;
-  width: 100%;
-}
-
-.popup-close {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  border: none;
-  background: transparent;
-  font-size: 18px;
-  cursor: pointer;
 }
