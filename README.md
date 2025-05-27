@@ -1,9 +1,11 @@
-# citysafe
+# Citysafe
 
 ## Sujet
+
 Engagé par la police New-Yorkaise, vous devez développer une plateforme de visualisation dynamique sur les crimes recensés à New York. Cette plateforme aide les citoyens à comprendre leur quartier et les chercheurs à analyser les tendances de criminalité, voir même de les trouver.
 
 ## Objectifs :
+
 <ol>
 <li>Analyse spatio-temporelle des délits/crimes</li>
 <li>Corrélation entre type de crime et zone géographique</li>
@@ -12,4 +14,15 @@ Engagé par la police New-Yorkaise, vous devez développer une plateforme de vis
 </ol>
 
 ## Trello
+
 https://trello.com/c/Y7ZOHPXE/1-sujet-cartographier-la-criminalit%C3%A9-%C3%A0-new-york
+
+## Back
+
+### Créer la BDD :
+
+lancer le script `db_init.py`
+
+### Lancer l'app :
+
+lancer le script `app.py`

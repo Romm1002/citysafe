@@ -1,6 +1,5 @@
 from flask import Blueprint, request, jsonify
 from models.complaints import db, Complaint
-from models.neighborhoods import Neighborhood
 
 complaint_bp = Blueprint('complaint_bp', __name__)
 
