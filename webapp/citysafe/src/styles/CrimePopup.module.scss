@@ -1,4 +1,4 @@
-.neighborhood-popup {
+.neighborhoodPopup {
   position: absolute;
   top: calc(var(--control-height) + 22px);
   left: calc(var(--gap) + 8px);
@@ -11,7 +11,7 @@
   width: 100%;
 }
 
-.popup-close {
+.popupClose {
   position: absolute;
   top: 8px;
   right: 8px;
@@ -19,4 +19,10 @@
   background: transparent;
   font-size: 18px;
   cursor: pointer;
+}
+
+.title {
+  margin: 0 0 16px;
+  font-size: 1.25rem;
+  color: #333;
 }

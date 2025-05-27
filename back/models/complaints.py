@@ -1,5 +1,5 @@
-from sqlalchemy.dialects.mysql import INTEGER, DOUBLE, TEXT, TIMESTAMP, VARCHAR
 from extensions import db
+from sqlalchemy.dialects.mysql import INTEGER, DOUBLE, TEXT, TIMESTAMP, VARCHAR
 
 class Complaint(db.Model):
     __tablename__ = 'complaints'

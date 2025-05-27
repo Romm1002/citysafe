@@ -16,6 +16,7 @@ class Neighborhood(db.Model):
     __tablename__ = 'neighborhoods'
     id = db.Column(INTEGER(unsigned=True), primary_key=True, autoincrement=True)
     name = db.Column(VARCHAR(100), nullable=False)
+    boro = db.Column(VARCHAR(100), nullable=False)
 
 class Complaint(db.Model):
     __tablename__ = 'complaints'
