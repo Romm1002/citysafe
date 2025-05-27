@@ -2,6 +2,7 @@ import { useState } from 'react';
 import Search from '../components/SearchBar';
 import Filters from '../components/Filters';
 import MapView from '../components/MapView';
+import CrimePopup from '../components/CrimePopup';
 import '../styles/global.scss';
 
 export default function Home() {
@@ -10,7 +11,9 @@ export default function Home() {
   const handleNeighborhoodClick = (props) => {
     setSelectedNeighborhood(props);
   };
-  const closePopup = () => setSelectedNeighborhood(null);
+  const closePopup = () => {
+    setSelectedNeighborhood(null);
+  };
 
   return (
     <div className="app-container">
@@ -24,18 +27,15 @@ export default function Home() {
         </div>
       </header>
 
-      {selectedNeighborhood && (
-        <div className="neighborhood-popup">
-          <button className="popup-close" onClick={closePopup}>×</button>
-          <h3>{selectedNeighborhood.NTAName}</h3>
-          <p><strong>Arrondissement :</strong> {selectedNeighborhood.BoroName}</p>
-          <p><strong>Code NTA :</strong> {selectedNeighborhood.NTA2020}</p>
-        </div>
-      )}
+      <CrimePopup
+        neighborhood={selectedNeighborhood}
+        onClose={closePopup}
+      />
 
       <div className="map-wrapper">
         <MapView
           onNeighborhoodClick={handleNeighborhoodClick}
+          selectedNeighborhood={selectedNeighborhood} 
         />
       </div>
     </div>
