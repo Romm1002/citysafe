@@ -1,6 +1,9 @@
 import { useEffect, useRef } from 'react';
 import mapboxgl from 'mapbox-gl';
-import { MAP_STYLE, MAP_BOUNDS, START_VIEW, SOURCE_ID, GEOJSON_URL, LAYERS, MAPBOX_TOKEN } from '../config/mapConfig';
+import {
+  MAP_STYLE, MAP_BOUNDS, START_VIEW,
+  SOURCE_ID, GEOJSON_URL, LAYERS, MAPBOX_TOKEN
+} from '../config/mapConfig';
 
 mapboxgl.accessToken = MAPBOX_TOKEN;
 
@@ -8,13 +11,13 @@ export default function useMapbox({
   containerRef,
   tooltipRef,
   onNeighborhoodClick,
-  selectedNeighborhood
+  selectedNeighborhood,
+  nameToIdMap
 }) {
-  const map = useRef(null);
-  const hoveredId  = useRef(null);
-  const selectedId = useRef(null);
+  const map         = useRef(null);
+  const hoveredId   = useRef(null);
+  const selectedFid = useRef(null);
 
-  // Init map + layers once
   useEffect(() => {
     if (map.current) return;
 
@@ -28,39 +31,34 @@ export default function useMapbox({
     map.current.on('load', () => {
       map.current.addSource(SOURCE_ID, { type: 'geojson', data: GEOJSON_URL });
 
-      // add layers in the right order
-        map.current.addLayer({ 
-            ...LAYERS.fill, 
-            source: SOURCE_ID 
-        });
+      map.current.addLayer({ ...LAYERS.fill,    source: SOURCE_ID });
       map.current.addLayer({ ...LAYERS.outline, source: SOURCE_ID });
       map.current.addLayer({ ...LAYERS.label,   source: SOURCE_ID });
 
-      // Hover handlers
       map.current.on('mousemove', LAYERS.fill.id, onMouseMove);
       map.current.on('mouseleave', LAYERS.fill.id, onMouseLeave);
-
-      // Click handler
-      map.current.on('click', LAYERS.fill.id, onClickFeature);
+      map.current.on('click',      LAYERS.fill.id, onClickFeature);
     });
 
     function onMouseMove(e) {
-      if (!e.features.length) return;
-      // clear old hover
+      const f = e.features[0];
+      if (!f) return;
+
       if (hoveredId.current !== null) {
         map.current.setFeatureState(
           { source: SOURCE_ID, id: hoveredId.current },
           { hover: false }
         );
       }
-      hoveredId.current = e.features[0].id;
+
+      hoveredId.current = f.id;
       map.current.setFeatureState(
-        { source: SOURCE_ID, id: hoveredId.current },
+        { source: SOURCE_ID, id: f.id },
         { hover: true }
       );
-      // tooltip
+
       tooltipRef.current.style.display = 'block';
-      tooltipRef.current.innerText   = e.features[0].properties.NTAName;
+      tooltipRef.current.innerText   = f.properties.NTAName;
       tooltipRef.current.style.left  = `${e.point.x + 10}px`;
       tooltipRef.current.style.top   = `${e.point.y + 10}px`;
     }
@@ -71,40 +69,61 @@ export default function useMapbox({
           { source: SOURCE_ID, id: hoveredId.current },
           { hover: false }
         );
+        hoveredId.current = null;
       }
-      hoveredId.current = null;
       tooltipRef.current.style.display = 'none';
     }
 
     function onClickFeature(e) {
       if (!e.features.length) return;
-      const id = e.features[0].id;
+      const f = e.features[0];
 
-      // clear old selection
-      if (selectedId.current !== null) {
+      console.log('Raw feature:', f);
+      
+      console.log('feature.id:', f.id);
+      console.log('feature.properties:', f.properties);
+
+      const ntaName = f.properties.NTAName;
+      console.log('NTAName:', ntaName);
+      console.log('nameToIdMap:', nameToIdMap);
+
+      const dbId = nameToIdMap[ntaName];
+      console.log('Mapped DB id:', dbId);
+
+      if (!dbId) {
+        console.warn(`No DB id for "${ntaName}"`);
+        return;
+      }
+
+      if (selectedFid.current !== null) {
         map.current.setFeatureState(
-          { source: SOURCE_ID, id: selectedId.current },
+          { source: SOURCE_ID, id: selectedFid.current },
           { selected: false }
         );
       }
-      selectedId.current = id;
+      selectedFid.current = f.id;
       map.current.setFeatureState(
-        { source: SOURCE_ID, id },
+        { source: SOURCE_ID, id: f.id },
         { selected: true }
       );
-      onNeighborhoodClick(e.features[0].properties);
-    }
-  }, [containerRef, tooltipRef, onNeighborhoodClick]);
 
-  // clear selection when popup closed
+      onNeighborhoodClick(dbId);
+    }
+  }, [
+    containerRef,
+    tooltipRef,
+    onNeighborhoodClick,
+    nameToIdMap
+  ]);
+
   useEffect(() => {
-    if (!map.current) return;
-    if (selectedNeighborhood === null && selectedId.current !== null) {
+    if (!map.current || selectedNeighborhood !== null) return;
+    if (selectedFid.current !== null) {
       map.current.setFeatureState(
-        { source: SOURCE_ID, id: selectedId.current },
+        { source: SOURCE_ID, id: selectedFid.current },
         { selected: false }
       );
-      selectedId.current = null;
+      selectedFid.current = null;
     }
   }, [selectedNeighborhood]);
 }

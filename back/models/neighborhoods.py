@@ -6,3 +6,4 @@ class Neighborhood(db.Model):
 
     id = db.Column(INTEGER(unsigned=True), primary_key=True, autoincrement=True)
     name = db.Column(VARCHAR(100), nullable=False)
+    boro = db.Column(VARCHAR(100), nullable=False)

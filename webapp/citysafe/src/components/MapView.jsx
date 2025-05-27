@@ -3,13 +3,13 @@ import useMapbox from '../hooks/useMapbox';
 import Tooltip   from './Tooltip';
 import '../styles/MapView.scss';
 
-export default function MapView({ onNeighborhoodClick, selectedNeighborhood }) {
-  const mapContainer = useRef();
-  const tooltip      = useRef();
+export default function MapView({ onNeighborhoodClick, selectedNeighborhood, nameToIdMap }) {
+  const mapContainer = useRef(null);
+  const tooltip      = useRef(null);
 
   useMapbox({
     containerRef: mapContainer,
-    tooltipRef: tooltip, onNeighborhoodClick, selectedNeighborhood
+    tooltipRef: tooltip, onNeighborhoodClick, selectedNeighborhood, nameToIdMap
   });
 
   return (

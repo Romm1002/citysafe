@@ -4,7 +4,6 @@ from models.neighborhoods import Neighborhood
 
 complaint_bp = Blueprint('complaint_bp', __name__)
 
-# Obtenir toutes les plaintes
 @complaint_bp.route('/complaints', methods=['GET'])
 def get_all_complaints():
     complaints = Complaint.query.all()
