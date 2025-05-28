@@ -1,5 +1,5 @@
 from extensions import db
-from sqlalchemy.dialects.mysql import INTEGER, DOUBLE, TEXT, TIMESTAMP, VARCHAR
+from sqlalchemy.dialects.mysql import DATE, INTEGER, DOUBLE, TEXT, TIMESTAMP, VARCHAR
 
 class Complaint(db.Model):
     __tablename__ = 'complaints'
@@ -8,9 +8,9 @@ class Complaint(db.Model):
     cmplnt_num = db.Column(TEXT)
     addr_pct_cd = db.Column(INTEGER)
     boro_nm = db.Column(TEXT)
-    cmplnt_fr_dt = db.Column(TIMESTAMP(fsp=6))
+    cmplnt_fr_dt = db.Column(DATE, nullable=True)
     cmplnt_fr_tm = db.Column(TEXT)
-    cmplnt_to_dt = db.Column(TIMESTAMP(fsp=6))
+    cmplnt_to_dt = db.Column(DATE, nullable=True)
     cmplnt_to_tm = db.Column(TEXT)
     crm_atpt_cptd_cd = db.Column(TEXT)
     hadevelopt = db.Column(TEXT)

@@ -6,6 +6,7 @@ from extensions import db
 from models.neighborhoods import Neighborhood
 from models.complaints    import Complaint
 from config import Config
+from datetime import datetime
 
 # 1) Init Flask + SQLAlchemy
 app = Flask(__name__)
@@ -32,6 +33,12 @@ def safe_float(val):
     try:
         return float(val) if val not in (None, '', 'NaN') else None
     except:
+        return None
+    
+def parse_date(val):
+    try:
+        return datetime.strptime(val, '%m/%d/%Y')
+    except Exception:
         return None
 
 def main():
@@ -71,9 +78,9 @@ def main():
                         cmplnt_num          = row.get('CMPLNT_NUM'),
                         addr_pct_cd         = safe_int(row.get('ADDR_PCT_CD')),
                         boro_nm             = row.get('BORO_NM'),
-                        cmplnt_fr_dt        = row.get('CMPLNT_FR_DT'),
+                        cmplnt_fr_dt        = parse_date(row.get('CMPLNT_FR_DT')),
                         cmplnt_fr_tm        = row.get('CMPLNT_FR_TM'),
-                        cmplnt_to_dt        = row.get('CMPLNT_TO_DT'),
+                        cmplnt_to_dt        = parse_date(row.get('CMPLNT_TO_DT')),
                         cmplnt_to_tm        = row.get('CMPLNT_TO_TM'),
                         crm_atpt_cptd_cd    = row.get('CRM_ATPT_CPTD_CD'),
                         hadevelopt          = row.get('HADEVELOPT'),
