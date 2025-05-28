@@ -1,13 +1,22 @@
 import '../styles/Filters.scss';
 
-export default function Filters() {
+export default function Filters({
+  crimeTypes,
+  selectedType,
+  onTypeChange
+}) {
   return (
     <div className="filters">
-      <select className="filter-select" aria-label="Filtrer par type de crime">
-        <option value="">Tous les types</option>
-        <option value="theft">Vol</option>
-        <option value="assault">Agression</option>
-        <option value="drug">Drogue</option>
+      <select
+        id="crime-type-select"
+        className="filter-select"
+        value={selectedType}
+        onChange={e => onTypeChange(e.target.value)}
+      >
+        <option value="">— Choisir un type de crime —</option>
+        {crimeTypes.map(type => (
+          <option key={type} value={type}>{type}</option>
+        ))}
       </select>
 
       <input
@@ -18,11 +27,11 @@ export default function Filters() {
 
       <select className="filter-select" aria-label="Filtrer par arrondissement">
         <option value="">Tous les arrondissements</option>
-        <option value="Manhattan">Manhattan</option>
-        <option value="Brooklyn">Brooklyn</option>
-        <option value="Queens">Queens</option>
-        <option value="Bronx">Bronx</option>
-        <option value="Staten Island">Staten Island</option>
+        <option>Manhattan</option>
+        <option>Brooklyn</option>
+        <option>Queens</option>
+        <option>Bronx</option>
+        <option>Staten Island</option>
       </select>
     </div>
   );
