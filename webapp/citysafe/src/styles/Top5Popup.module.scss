@@ -1,5 +1,3 @@
-/* src/styles/Top5Popup.module.scss */
-
 .popup {
   position: absolute;
   top: calc(var(--control-height) + 22px);
@@ -48,7 +46,7 @@
   list-style: none;
   padding: 0;
   margin: 0;
-  flex: 1; /* pour que la liste prenne tout l’espace disponible */
+  flex: 1;
   overflow-y: auto;
 }
 

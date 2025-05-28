@@ -1,6 +1,7 @@
 import { useRef } from 'react';
 import useMapbox from '../hooks/useMapbox';
 import Tooltip   from './Tooltip';
+import Legend from './Legend';
 import '../styles/MapView.scss';
 
 export default function MapView({ onNeighborhoodClick, selectedNeighborhood, nameToIdMap, searchName }) {
@@ -16,6 +17,7 @@ export default function MapView({ onNeighborhoodClick, selectedNeighborhood, nam
     <>
       <div ref={mapContainer} className="map-container" />
       <Tooltip ref={tooltip} />
+      <Legend />
     </>
   );
 }

@@ -1,5 +1,3 @@
-// src/components/Top5Popup.jsx
-import React from 'react';
 import styles from '../styles/Top5Popup.module.scss';
 
 export default function Top5Popup({ title, items, onClose }) {

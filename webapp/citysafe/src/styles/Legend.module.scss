@@ -1,0 +1,59 @@
+.legend {
+  position: absolute;
+  bottom: var(--gap);
+  left: var(--gap);
+  background: #ffffff;
+  padding: var(--gap);
+  border-radius: var(--card-radius);
+  box-shadow: var(--shadow);
+  z-index: 15;
+  width: 200px;
+  font-size: 0.85rem;
+  color: #333;
+}
+
+.section {
+  &:not(:last-child) {
+    margin-bottom: var(--gap);
+  }
+}
+
+.heading {
+  margin: 0 0 4px;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.gradient {
+  height: 8px;
+  border-radius: 4px;
+  background: linear-gradient(
+    to right,
+    rgba(33,102,172,0),
+    rgb(103,169,207),
+    rgb(209,229,240),
+    rgb(253,219,199),
+    rgb(239,138,98),
+    rgb(178,24,43)
+  );
+  margin-bottom: 4px;
+}
+
+.labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.marker {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  margin-right: 6px;
+}
