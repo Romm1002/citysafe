@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import styles from '../styles/CrimePopup.module.scss';
 import { fetchNeighborhood } from '../api/neighborhoodsApi';
 import CrimeIndex from './CrimeIndex';
+import CrimeTypeList from './CrimeTypeList';
 
 export default function CrimePopup({ neighborhoodId, onClose }) {
   const [neighborhood, setNeighborhood] = useState(null);
@@ -23,6 +24,7 @@ export default function CrimePopup({ neighborhoodId, onClose }) {
       <button className={styles.popupClose} onClick={onClose}>×</button>
       <h3 className={styles.title}>{neighborhood.name} dans {neighborhood.boro}</h3>
       <CrimeIndex neighborhoodId={neighborhoodId} />
+      <CrimeTypeList neighborhoodId={neighborhoodId} />
     </div>
   );
 }

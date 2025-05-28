@@ -1,5 +1,7 @@
 from flask import Blueprint, request, jsonify
 from models.complaints import db, Complaint
+from models.neighborhoods import Neighborhood
+from sqlalchemy import func
 
 complaint_bp = Blueprint('complaint_bp', __name__)
 
@@ -20,6 +22,62 @@ def get_all_complaints():
             } if c.neighborhood else None
         })
     return jsonify(result), 200
+
+@complaint_bp.route('/complaints/type_counts', methods=['GET'])
+def get_crime_type_counts():
+    neighborhood_id = request.args.get('neighborhood_id', type=int)
+    if neighborhood_id is None:
+        abort(400, "neighborhood_id required")
+    # agrège par ofns_desc
+    rows = (
+        db.session.query(
+            Complaint.ofns_desc.label('type'),
+            func.count(Complaint.id).label('count')
+        )
+        .filter(Complaint.neighborhood_id == neighborhood_id)
+        .group_by(Complaint.ofns_desc)
+        .order_by(func.count(Complaint.id).desc())
+        .all()
+    )
+    return jsonify([{"type": r.type, "count": r.count} for r in rows]), 200
+
+@complaint_bp.route('/complaints/top_neighborhoods', methods=['GET'])
+def get_top_neighborhoods():
+    crime_type = request.args.get('crime_type')
+    if not crime_type:
+        return jsonify({"error": "crime_type required"}), 400
+
+    # on fait le count par quartier
+    rows = (
+        db.session.query(
+            Complaint.neighborhood_id,
+            func.count(Complaint.id).label('cnt')
+        )
+        .filter(Complaint.ofns_desc == crime_type)
+        .group_by(Complaint.neighborhood_id)
+        .order_by(func.count(Complaint.id).desc())
+        .limit(5)
+        .all()
+    )
+
+    # on récupère les noms des quartiers
+    result = []
+    for nid, cnt in rows:
+        q = Neighborhood.query.get(nid)
+        if q:
+            result.append({
+                "neighborhood_id": nid,
+                "name": q.name,
+                "boro": q.boro,
+                "count": cnt
+            })
+    return jsonify(result), 200
+
+@complaint_bp.route('/complaints/types', methods=['GET'])
+def get_crime_types():
+    types = db.session.query(Complaint.ofns_desc).distinct().all()
+    return jsonify([t[0] for t in types]), 200
+
 
 @complaint_bp.route('/complaints', methods=['POST'])
 def create_complaint():

@@ -1,0 +1,86 @@
+/* src/styles/Top5Popup.module.scss */
+
+.popup {
+  position: absolute;
+  top: calc(var(--control-height) + 22px);
+  right: calc(var(--gap) + 8px);
+  width: 280px;
+  background: #ffffff;
+  padding: calc(var(--gap) * 1.5);
+  border-radius: var(--card-radius);
+  box-shadow: var(--shadow);
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: transparent;
+  border: none;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  color: #666;
+  transition: color 0.2s;
+  &:hover {
+    color: #000;
+  }
+}
+
+.title {
+  margin: 0 0 var(--gap) 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #222;
+  text-align: center;
+}
+
+.list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  flex: 1; /* pour que la liste prenne tout l’espace disponible */
+  overflow-y: auto;
+}
+
+.item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px;
+  border-radius: 6px;
+  margin-bottom: 6px;
+  background: #f9fafe;
+  transition: background 0.2s;
+  &:hover {
+    background: #eef4ff;
+  }
+  &:last-child {
+    margin-bottom: 0;
+  }
+
+  .name {
+    font-size: 0.95rem;
+    color: #333;
+    font-weight: 500;
+  }
+
+  .count {
+    background: #007CBF;
+    color: #fff;
+    font-size: 0.8rem;
+    padding: 2px 8px;
+    border-radius: 12px;
+    min-width: 32px;
+    text-align: center;
+  }
+}

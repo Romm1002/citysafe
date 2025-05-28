@@ -1,3 +1,4 @@
+// src/hooks/useMapbox.js
 import { useEffect, useRef } from 'react';
 import mapboxgl from 'mapbox-gl';
 import {
@@ -12,12 +13,14 @@ export default function useMapbox({
   tooltipRef,
   onNeighborhoodClick,
   selectedNeighborhood,
-  nameToIdMap
+  nameToIdMap,
+  searchName
 }) {
   const map         = useRef(null);
-  const hoveredId   = useRef(null);
+  const hoveredFid  = useRef(null);
   const selectedFid = useRef(null);
 
+  // 1) initialisation de la map et des handlers
   useEffect(() => {
     if (map.current) return;
 
@@ -30,7 +33,6 @@ export default function useMapbox({
 
     map.current.on('load', () => {
       map.current.addSource(SOURCE_ID, { type: 'geojson', data: GEOJSON_URL });
-
       map.current.addLayer({ ...LAYERS.fill,    source: SOURCE_ID });
       map.current.addLayer({ ...LAYERS.outline, source: SOURCE_ID });
       map.current.addLayer({ ...LAYERS.label,   source: SOURCE_ID });
@@ -43,70 +45,61 @@ export default function useMapbox({
     function onMouseMove(e) {
       const f = e.features[0];
       if (!f) return;
-
-      if (hoveredId.current !== null) {
+      if (hoveredFid.current !== null) {
         map.current.setFeatureState(
-          { source: SOURCE_ID, id: hoveredId.current },
+          { source: SOURCE_ID, id: hoveredFid.current },
           { hover: false }
         );
       }
-
-      hoveredId.current = f.id;
+      hoveredFid.current = f.id;
       map.current.setFeatureState(
         { source: SOURCE_ID, id: f.id },
         { hover: true }
       );
 
       tooltipRef.current.style.display = 'block';
-      tooltipRef.current.innerText   = f.properties.NTAName;
-      tooltipRef.current.style.left  = `${e.point.x + 10}px`;
-      tooltipRef.current.style.top   = `${e.point.y + 10}px`;
+      tooltipRef.current.innerText     = f.properties.NTAName;
+      tooltipRef.current.style.left    = `${e.point.x + 10}px`;
+      tooltipRef.current.style.top     = `${e.point.y + 10}px`;
     }
 
     function onMouseLeave() {
-      if (hoveredId.current !== null) {
+      if (hoveredFid.current !== null) {
         map.current.setFeatureState(
-          { source: SOURCE_ID, id: hoveredId.current },
+          { source: SOURCE_ID, id: hoveredFid.current },
           { hover: false }
         );
-        hoveredId.current = null;
       }
+      hoveredFid.current = null;
       tooltipRef.current.style.display = 'none';
     }
 
     function onClickFeature(e) {
-      if (!e.features.length) return;
       const f = e.features[0];
+      if (!f) return;
 
-      console.log('Raw feature:', f);
-      
-      console.log('feature.id:', f.id);
-      console.log('feature.properties:', f.properties);
-
-      const ntaName = f.properties.NTAName;
-      console.log('NTAName:', ntaName);
-      console.log('nameToIdMap:', nameToIdMap);
-
-      const dbId = nameToIdMap[ntaName];
-      console.log('Mapped DB id:', dbId);
-
-      if (!dbId) {
-        console.warn(`No DB id for "${ntaName}"`);
-        return;
-      }
-
+      // clear old selection
       if (selectedFid.current !== null) {
         map.current.setFeatureState(
           { source: SOURCE_ID, id: selectedFid.current },
           { selected: false }
         );
       }
+
+      // set new selection
       selectedFid.current = f.id;
       map.current.setFeatureState(
         { source: SOURCE_ID, id: f.id },
         { selected: true }
       );
 
+      // lookup dbId and open popup
+      const name = f.properties.NTAName.trim();
+      const dbId = nameToIdMap[name];
+      if (!dbId) {
+        console.warn(`No DB id for "${name}"`);
+        return;
+      }
       onNeighborhoodClick(dbId);
     }
   }, [
@@ -116,6 +109,49 @@ export default function useMapbox({
     nameToIdMap
   ]);
 
+  // 2) effet pour la SearchBar 🔍
+  useEffect(() => {
+    console.log('🔄 Search effect triggered:', searchName, 'map?', !!map.current);
+    if (!map.current || !searchName) return;
+
+    // utilise queryRenderedFeatures, pas querySourceFeatures
+    const feats = map.current.queryRenderedFeatures({
+      layers: [LAYERS.fill.id]
+    });
+    console.log('👀 rendered features count:', feats.length);
+
+    const f = feats.find(feat =>
+      feat.properties.NTAName.trim() === searchName
+    );
+    console.log('🔎 feature trouvée:', f);
+
+    if (!f) {
+      console.warn('Search: quartier non trouvé', searchName);
+      return;
+    }
+
+    // clear old selection
+    if (selectedFid.current !== null) {
+      map.current.setFeatureState(
+        { source: SOURCE_ID, id: selectedFid.current },
+        { selected: false }
+      );
+    }
+
+    // set new selection on the feature
+    selectedFid.current = f.id;
+    map.current.setFeatureState(
+      { source: SOURCE_ID, id: f.id },
+      { selected: true }
+    );
+
+    // open popup
+    const dbId = nameToIdMap[searchName];
+    onNeighborhoodClick(dbId);
+
+  }, [searchName, nameToIdMap, onNeighborhoodClick]);
+
+  // 3) clear highlight when popup closes
   useEffect(() => {
     if (!map.current || selectedNeighborhood !== null) return;
     if (selectedFid.current !== null) {
