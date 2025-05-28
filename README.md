@@ -13,6 +13,10 @@ Engagé par la police New-Yorkaise, vous devez développer une plateforme de vis
 <li>WebApp interactive avec carte, filtres, et barres de recherche</li>
 </ol>
 
+## Présentation Canva
+
+https://www.canva.com/design/DAGouyhjqao/PEflXEHQlmVyGJnrUXnlXQ/edit?utm_content=DAGouyhjqao&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton
+
 ## Trello
 
 https://trello.com/c/Y7ZOHPXE/1-sujet-cartographier-la-criminalit%C3%A9-%C3%A0-new-york
