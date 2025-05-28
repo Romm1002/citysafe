@@ -28,7 +28,6 @@ def get_crime_type_counts():
     neighborhood_id = request.args.get('neighborhood_id', type=int)
     if neighborhood_id is None:
         abort(400, "neighborhood_id required")
-    # agrège par ofns_desc
     rows = (
         db.session.query(
             Complaint.ofns_desc.label('type'),
@@ -47,7 +46,6 @@ def get_top_neighborhoods():
     if not crime_type:
         return jsonify({"error": "crime_type required"}), 400
 
-    # on fait le count par quartier
     rows = (
         db.session.query(
             Complaint.neighborhood_id,
@@ -60,7 +58,6 @@ def get_top_neighborhoods():
         .all()
     )
 
-    # on récupère les noms des quartiers
     result = []
     for nid, cnt in rows:
         q = Neighborhood.query.get(nid)
