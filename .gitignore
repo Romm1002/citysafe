@@ -1,0 +1,3 @@
+model/**/*.csv
+model/**/*.joblib
+dataset/**/*.csv

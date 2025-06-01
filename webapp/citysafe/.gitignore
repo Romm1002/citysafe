@@ -24,6 +24,3 @@ dist-ssr
 *.sw?
 
 .env*
-model/**/*.csv
-model/**/*.joblib
-dataset/**/*.csv
