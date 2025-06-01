@@ -17,7 +17,7 @@ from sklearn.preprocessing import LabelEncoder
 from typing import Literal
 
 # -----------------------------------------------------------------------------
-# 1. Valeurs en dur (à modifier dans le code)
+# 1. Valeurs en dur
 # -----------------------------------------------------------------------------
 QUARTIER = "Chelsea-Hudson Yards"
 DATE = "2025-03-05"
