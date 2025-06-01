@@ -1,0 +1,53 @@
+FROM apache/airflow:2.6.3
+
+USER root
+
+RUN apt-get update && \
+    apt-get install -y \
+    libsasl2-dev \
+    gcc \
+    g++ \
+    python3-dev \
+    libpq-dev \
+    make \
+    openjdk-11-jdk \
+    wget \
+    procps \
+    && rm -rf /var/lib/apt/lists/* \ 
+    google-chrome-stable
+
+# Wrapper safe
+RUN printf '#!/bin/bash\nexec /opt/hive/bin/beeline "$@"\n' > /usr/bin/beeline && chmod +x /usr/bin/beeline
+RUN printf '#!/bin/bash\nexec /opt/hive/bin/hive "$@"\n' > /usr/bin/hive && chmod +x /usr/bin/hive
+
+# ENV vars
+ENV JAVA_HOME=/usr/lib/jvm/java-11-openjdk-arm64
+ENV PATH=$PATH:$HIVE_HOME/bin:$HADOOP_HOME/bin
+
+USER airflow
+
+RUN pip install --no-cache-dir "apache-airflow==2.6.3"
+
+RUN pip install --no-cache-dir \
+    "apache-airflow-providers-http==4.1.0" \
+    "apache-airflow-providers-postgres==5.5.0"
+
+RUN pip install --no-cache-dir \
+    "apache-airflow-providers-apache-hive[jdbc]==6.1.0" \
+    "impyla==0.18.0" \
+    "thrift-sasl<0.5.0,>0.4.0"
+
+RUN pip uninstall -y sasl pyhive thrift
+
+# Installer selenium (en même temps)
+RUN pip install --no-cache-dir selenium
+RUN pip install --no-cache-dir pandas geopandas shapely rtree
+
+RUN pip install --no-cache-dir pandas
+RUN pip install --no-cache-dir geopandas
+RUN pip install --no-cache-dir shapely
+RUN pip install --no-cache-dir requests
+RUN pip install --no-cache-dir sqlalchemy
+RUN pip install --no-cache-dir mysqlclient
+RUN pip install --no-cache-dir Flask-SQLAlchemy
+

@@ -43,48 +43,49 @@ services:
       timeout: 5s
       retries: 5
 
-  # airflow-init:
-  #   image: apache/airflow:2.8.1
-  #   depends_on:
-  #     - db
-  #   environment:
-  #     - _AIRFLOW_WWW_USER_USERNAME=admin
-  #     - _AIRFLOW_WWW_USER_PASSWORD=admin
-  #     - AIRFLOW__CORE__EXECUTOR=LocalExecutor
-  #     - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql+psycopg2://postgres:postgres@db:5432/mydb
-  #   entrypoint: >
-  #     bash -c "
-  #     airflow db init &&
-  #     airflow users create --username admin --password admin --firstname admin --lastname user --role Admin --email admin@example.com
-  #     "
-  #   volumes:
-  #     - ./airflow/dags:/opt/airflow/dags
+  postgres-airflow:
+    image: postgres:15
+    container_name: postgres-airflow
+    environment:
+      - POSTGRES_USER=airflow
+      - POSTGRES_PASSWORD=airflow
+      - POSTGRES_DB=airflow
+      - POSTGRES_HOST_AUTH_METHOD=md5
+    ports:
+      - "5433:5432"
 
-  # airflow-webserver:
-  #   image: apache/airflow:2.8.1
-  #   container_name: airflow_web
-  #   restart: always
-  #   depends_on:
-  #     - airflow-init
-  #   ports:
-  #     - "8080:8080"
-  #   environment:
-  #     - AIRFLOW__CORE__EXECUTOR=LocalExecutor
-  #     - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql+psycopg2://postgres:postgres@db:5432/mydb
-  #   volumes:
-  #     - ./airflow/dags:/opt/airflow/dags
-
-  # airflow-scheduler:
-  #   image: apache/airflow:2.8.1
-  #   container_name: airflow_sched
-  #   restart: always
-  #   depends_on:
-  #     - airflow-init
-  #   environment:
-  #     - AIRFLOW__CORE__EXECUTOR=LocalExecutor
-  #     - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql+psycopg2://postgres:postgres@db:5432/mydb
-  #   volumes:
-  #     - ./airflow/dags:/opt/airflow/dags
+  airflow:
+    build:
+      context: .
+      dockerfile: ./airflow/Dockerfile-airflow
+    container_name: airflow
+    depends_on:
+      - postgres-airflow
+    environment:
+      - AIRFLOW__CORE__EXECUTOR=LocalExecutor
+      - AIRFLOW__CORE__FERNET_KEY=Lun1uazC_dvkd-kgrYDbBn7wY4OGxrMW-Ns4iRdJ_-4=
+      - AIRFLOW__CORE__DEFAULT_TIMEZONE=Europe/Paris
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres-airflow:5432/airflow
+      - AIRFLOW__CORE__DAGS_FOLDER=/usr/local/airflow/dags
+    command: >
+      bash -c "
+      airflow db init;
+      airflow users create --username admin --password admin --firstname admin --lastname admin --role Admin --email admin@example.com || true;
+      airflow webserver &
+      airflow scheduler
+      "
+    ports:
+      - "18080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./dags:/usr/local/airflow/dags
+      - ./airflow/dags:/usr/local/airflow/dags
+      - ./airflow/plugins:/usr/local/airflow/plugins
+      - ./airflow/logs:/usr/local/airflow/logs
+      - ./airflow/data:/opt/airflow/data
+      - airflow_db_volume:/var/lib/postgresql/data
+      - ./airflow/requirements.txt:/requirements.txt
 
 volumes:
   db_data:
+  airflow_db_volume:
