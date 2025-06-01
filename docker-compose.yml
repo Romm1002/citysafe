@@ -10,70 +10,81 @@ services:
     depends_on:
       - db
     environment:
-      - DATABASE_URL=postgresql://postgres:postgres@db:5432/mydb
+      DB_HOST: db
+      DB_USER: user
+      DB_PASSWORD: password
+      DB_NAME: citysafe
 
   frontend:
     build: ./webapp/citysafe
     container_name: react_app
     ports:
-      - "3000:3000"
+      - "5173:5173"
     stdin_open: true
     tty: true
 
   db:
-    image: postgres:15
-    container_name: postgres_db
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: mydb
-    ports:
-      - "5432:5432"
-    volumes:
-      - db_data:/var/lib/postgresql/data
-
-  airflow-init:
-    image: apache/airflow:2.8.1
-    depends_on:
-      - db
-    environment:
-      - _AIRFLOW_WWW_USER_USERNAME=admin
-      - _AIRFLOW_WWW_USER_PASSWORD=admin
-      - AIRFLOW__CORE__EXECUTOR=LocalExecutor
-      - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql+psycopg2://postgres:postgres@db:5432/mydb
-    entrypoint: >
-      bash -c "
-      airflow db init &&
-      airflow users create --username admin --password admin --firstname admin --lastname user --role Admin --email admin@example.com
-      "
-    volumes:
-      - ./airflow/dags:/opt/airflow/dags
-
-  airflow-webserver:
-    image: apache/airflow:2.8.1
-    container_name: airflow_web
+    build:
+      context: ./mysql_config
+    container_name: mysql_db
     restart: always
-    depends_on:
-      - airflow-init
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: citysafe
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
     ports:
-      - "8080:8080"
-    environment:
-      - AIRFLOW__CORE__EXECUTOR=LocalExecutor
-      - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql+psycopg2://postgres:postgres@db:5432/mydb
+      - "3306:3306"
     volumes:
-      - ./airflow/dags:/opt/airflow/dags
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
-  airflow-scheduler:
-    image: apache/airflow:2.8.1
-    container_name: airflow_sched
-    restart: always
-    depends_on:
-      - airflow-init
-    environment:
-      - AIRFLOW__CORE__EXECUTOR=LocalExecutor
-      - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql+psycopg2://postgres:postgres@db:5432/mydb
-    volumes:
-      - ./airflow/dags:/opt/airflow/dags
+  # airflow-init:
+  #   image: apache/airflow:2.8.1
+  #   depends_on:
+  #     - db
+  #   environment:
+  #     - _AIRFLOW_WWW_USER_USERNAME=admin
+  #     - _AIRFLOW_WWW_USER_PASSWORD=admin
+  #     - AIRFLOW__CORE__EXECUTOR=LocalExecutor
+  #     - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql+psycopg2://postgres:postgres@db:5432/mydb
+  #   entrypoint: >
+  #     bash -c "
+  #     airflow db init &&
+  #     airflow users create --username admin --password admin --firstname admin --lastname user --role Admin --email admin@example.com
+  #     "
+  #   volumes:
+  #     - ./airflow/dags:/opt/airflow/dags
+
+  # airflow-webserver:
+  #   image: apache/airflow:2.8.1
+  #   container_name: airflow_web
+  #   restart: always
+  #   depends_on:
+  #     - airflow-init
+  #   ports:
+  #     - "8080:8080"
+  #   environment:
+  #     - AIRFLOW__CORE__EXECUTOR=LocalExecutor
+  #     - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql+psycopg2://postgres:postgres@db:5432/mydb
+  #   volumes:
+  #     - ./airflow/dags:/opt/airflow/dags
+
+  # airflow-scheduler:
+  #   image: apache/airflow:2.8.1
+  #   container_name: airflow_sched
+  #   restart: always
+  #   depends_on:
+  #     - airflow-init
+  #   environment:
+  #     - AIRFLOW__CORE__EXECUTOR=LocalExecutor
+  #     - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql+psycopg2://postgres:postgres@db:5432/mydb
+  #   volumes:
+  #     - ./airflow/dags:/opt/airflow/dags
 
 volumes:
   db_data:

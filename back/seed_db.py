@@ -16,7 +16,7 @@ db.init_app(app)
 # 2) Chemin vers le CSV
 HERE     = os.path.dirname(__file__)
 CSV_PATH = os.path.abspath(os.path.join(
-    HERE, '..', 'webapp', 'citysafe', 'public',
+    HERE, 'data', 
     'NYPD_with_NTAName_from_latlon.csv'
 ))
 if not os.path.exists(CSV_PATH):
@@ -96,7 +96,7 @@ def main():
                         pd_cd               = safe_int(row.get('PD_CD')),
                         pd_desc             = row.get('PD_DESC'),
                         prem_typ_desc       = row.get('PREM_TYP_DESC'),
-                        rpt_dt              = row.get('RPT_DT'),
+                        rpt_dt              = parse_date(row.get('RPT_DT')),
                         station_name        = row.get('STATION_NAME'),
                         susp_age_group      = row.get('SUSP_AGE_GROUP'),
                         susp_race           = row.get('SUSP_RACE'),
