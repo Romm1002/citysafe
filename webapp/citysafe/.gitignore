@@ -24,6 +24,6 @@ dist-ssr
 *.sw?
 
 .env*
-**/model/**/*.csv
-**/dataset/*.csv
-**/model/**/*.joblib
+model/**/*.csv
+model/**/*.joblib
+dataset/**/*.csv
