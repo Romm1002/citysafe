@@ -14,15 +14,13 @@ from sklearn.metrics import mean_absolute_error
 # =============================================================================
 ROOT = Path(__file__).resolve().parent
 
-DATA_PATH = ROOT / ".." / ".." / "dataset" / "dataset_pred_crime_quartier_date.csv"
+DATA_PATH = ROOT / ".." / ".." / "dataset" / "clean_dataset.csv"
 MODEL_DIR = ROOT
 MODEL_FILE = MODEL_DIR / "lgbm.joblib"
 MAE_FILE = MODEL_DIR / "mae_validation.csv"
 HIST_FILE = MODEL_DIR / "history_lgb.csv"
 
-# Crée le répertoire du modèle si nécessaire
 MODEL_DIR.mkdir(parents=True, exist_ok=True)
-
 
 # =============================================================================
 # 2. Chargement et préparation des données
@@ -37,7 +35,6 @@ def load_and_prepare_data(path: Path) -> tuple[pd.DataFrame, pd.DataFrame, list[
     """
     print("[1/4] Chargement des données…")
     df = pd.read_csv(path, parse_dates=["DATE"])
-    df = df.sort_values(["QUARTIER", "DATE"]).reset_index(drop=True)
 
     # Définition des colonnes cibles et des features
     excluded = {"QUARTIER", "DATE", "NB_INFRACTION", "dow", "month", "doy_sin", "doy_cos"}
