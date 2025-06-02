@@ -26,7 +26,7 @@ MODELE = "lgbm"  # "lgbm" ou "lstm"
 # -----------------------------------------------------------------------------
 # 2. Chemins et constantes
 # -----------------------------------------------------------------------------
-DATA_PATH = "../dataset/dataset_pred_crime_quartier_date.csv"
+DATA_PATH = "../dataset/clean_dataset.csv"
 MAPPING_PATH = "../dataset/code_mapping.json"
 
 LGBM_PATH = "lgbm/lgbm.joblib"
