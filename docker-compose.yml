@@ -1,0 +1,91 @@
+version: '3.8'
+
+services:
+
+  backend:
+    build: ./back
+    container_name: flask_app
+    ports:
+      - "5000:5000"
+    depends_on:
+      - db
+    environment:
+      DB_HOST: db
+      DB_USER: user
+      DB_PASSWORD: password
+      DB_NAME: citysafe
+
+  frontend:
+    build: ./webapp/citysafe
+    container_name: react_app
+    ports:
+      - "5173:5173"
+    stdin_open: true
+    tty: true
+
+  db:
+    build:
+      context: ./mysql_config
+    container_name: mysql_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: citysafe
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  postgres-airflow:
+    image: postgres:15
+    container_name: postgres-airflow
+    environment:
+      - POSTGRES_USER=airflow
+      - POSTGRES_PASSWORD=airflow
+      - POSTGRES_DB=airflow
+      - POSTGRES_HOST_AUTH_METHOD=md5
+    ports:
+      - "5433:5432"
+
+  airflow:
+    build:
+      context: .
+      dockerfile: ./airflow/Dockerfile-airflow
+    container_name: airflow
+    depends_on:
+      - postgres-airflow
+    environment:
+      - AIRFLOW__CORE__EXECUTOR=LocalExecutor
+      - AIRFLOW__CORE__FERNET_KEY=Lun1uazC_dvkd-kgrYDbBn7wY4OGxrMW-Ns4iRdJ_-4=
+      - AIRFLOW__CORE__DEFAULT_TIMEZONE=Europe/Paris
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres-airflow:5432/airflow
+      - AIRFLOW__CORE__DAGS_FOLDER=/usr/local/airflow/dags
+    command: >
+      bash -c "
+      airflow db init;
+      airflow users create --username admin --password admin --firstname admin --lastname admin --role Admin --email admin@example.com || true;
+      airflow webserver &
+      airflow scheduler
+      "
+    ports:
+      - "18080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./dags:/usr/local/airflow/dags
+      - ./airflow/dags:/usr/local/airflow/dags
+      - ./airflow/plugins:/usr/local/airflow/plugins
+      - ./airflow/logs:/usr/local/airflow/logs
+      - ./airflow/data:/opt/airflow/data
+      - airflow_db_volume:/var/lib/postgresql/data
+      - ./airflow/requirements.txt:/requirements.txt
+
+volumes:
+  db_data:
+  airflow_db_volume:

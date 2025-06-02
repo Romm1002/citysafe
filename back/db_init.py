@@ -1,9 +1,9 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.dialects.mysql import DOUBLE, INTEGER, VARCHAR, TEXT, TIMESTAMP
+from sqlalchemy import create_engine
 import os
 from dotenv import load_dotenv
-import json
 from config import Config
 
 load_dotenv()
